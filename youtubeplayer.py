@@ -12,7 +12,7 @@ def geturl(url):
   
 
     best = video.getbestaudio()
-    return best.url
+    return best
 
 
 

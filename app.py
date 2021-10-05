@@ -11,6 +11,8 @@ reddit = praw.Reddit(
     password=os.environ['PASSWORD'],
 )
 
+
+
 def getrandomsubm():
 
 
@@ -31,5 +33,18 @@ def getfoodporn():
   submission = subreddit.random()
   return submission
 
+
+
+def searchpost(subredditquery, postquery):
+  subreddit = reddit.subreddits.search_by_name(subredditquery, include_nsfw = False, exact = False)
+  firstresult = subreddit[0]
+
+  submission  = firstresult.search(postquery)
+  submission = list(submission)
+  return submission[0]
+    
+
+
+  
 
 # Output: False
