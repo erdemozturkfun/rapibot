@@ -18,7 +18,7 @@ def geturl(url):
 
 
 
-# creating vlc media player object
+
 
  
 

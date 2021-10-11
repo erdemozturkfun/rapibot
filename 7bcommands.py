@@ -1,95 +1,53 @@
 from discord.ext import commands
 import discord
 import os
-import app
-import youtubeplayer
-from discord import FFmpegPCMAudio
+from discord import Colour
 from websrv import keep_alive
-import queryfinder
 
-bot = commands.Bot(command_prefix='7')
+
+
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix='7', intents=intents)
 
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
 
+@bot.event
+async def on_ready():
+ activity = discord.Game("meraba")
+ await bot.change_presence(status=discord.Status.dnd, activity=activity)
+
+
+
 @bot.command()
-async def meme(ctx):
-
-    submission = app.getrandomsubm()
-    embed = discord.Embed(title = submission.title, url = "https://www.reddit.com{}".format(submission.permalink))
-    footertext = "\N{THUMBS UP SIGN} {upvts}".format(upvts = submission.score)
-
-    embed.set_footer(text=footertext)
-    embed.set_image(url=submission.url)
+async def test(ctx):
+  mentions = ctx.message.mentions
+  activ = mentions[0].activity
+ 
+  if activ == None:
+      await ctx.send("No activity!")
+  else:
+    if isinstance(activ, discord.Spotify):
+      embed = discord.Embed(title= "Mention listens to: " + activ.title, description = "in " + activ.album,url=activ.album_cover_url, colour=activ.colour)
+      embed.set_thumbnail(url=activ.album_cover_url)
+      embed.set_author(name="by " + activ.artist)
+      await ctx.send(embed=embed)
+    elif isinstance(activ, discord.CustomActivity):
+      await ctx.send("Mention is doing " + activ.name)
+    else:  
+      embed = discord.Embed(title= "Mention plays: " + activ.name, colour = Colour.dark_blue())
+      if activ.small_image_url != None:
+        embed.set_footer(text=activ.small_image_text,icon_url=activ.small_image_url)
+        await ctx.send(embed=embed)
+      else:
+        embed.set_footer(text=activ.large_image_text,icon_url=activ.large_image_url)
+        await ctx.send(embed=embed)
       
-    meme = await ctx.send(embed=embed)
-    await meme.add_reaction("\N{THUMBS UP SIGN}")
+        
 
-@bot.command()    
-async def earth(ctx):
-    submission = app.getearthporn()
-    embed = discord.Embed(title = submission.title, url = "https://www.reddit.com{}".format(submission.permalink))
-    footertext = "Isnt it just beautiful?"
-
-    embed.set_footer(text=footertext)
-    embed.set_image(url=submission.url)
       
-    await ctx.send(embed=embed)
 
-@bot.command()
-async def food(ctx):
-      submission = app.getfoodporn()
-      embed = discord.Embed(title = submission.title, url = "https://www.reddit.com{}".format(submission.permalink))
-      footertext = "yum yum yum"
-
-      embed.set_footer(text=footertext)
-      embed.set_image(url=submission.url)
-      
-      food = await ctx.send(embed=embed)
-      await food.add_reaction("<:yummy:895013420754153514>")
-
-
-@bot.command()
-async def play(ctx, url: str):
-  
-      vc = ctx.author.voice.channel
-      voicevideo = youtubeplayer.geturl(url)
-      audiosrc = FFmpegPCMAudio(voicevideo.url, **FFMPEG_OPTIONS)    
-
-  
-      vclient = await vc.connect()
-      vclient.play(audiosrc)
-      await ctx.send("Now Playing: " + voicevideo.title)
-
-
-@bot.command()
-async def stop(ctx):
-  await ctx.send("Left from the VC.")
-  await bot.voice_clients[0].disconnect()
-
-@bot.command()
-async def reddit(ctx, subreddit:str,searchquery:str):
-  submission = app.searchpost(subredditquery= subreddit,postquery = searchquery)
-  embed = discord.Embed(title = submission.title, url = "https://www.reddit.com{}".format(submission.permalink))
-  footertext = "\N{THUMBS UP SIGN} {upvts}".format(upvts = submission.score)
-
-  embed.set_footer(text=footertext)
-  embed.set_image(url=submission.url)
-
-  await ctx.send(embed = embed)
-      
-@bot.command()
-async def youtube(ctx, searchquery:str):
-    vc = ctx.author.voice.channel
-    voicevideo = queryfinder.searchyoutube(searchquery)
-    audiosrc = FFmpegPCMAudio(voicevideo.url, **FFMPEG_OPTIONS)    
-
-  
-    vclient = await vc.connect()
-    vclient.play(audiosrc)
-    await ctx.send("Now Playing: " + voicevideo.title)
-
-
-
+bot.load_extension('cogs.Youtube')
+bot.load_extension('cogs.Reddit')
 keep_alive()
 bot.run(os.environ['BOTTOKEN'])
 

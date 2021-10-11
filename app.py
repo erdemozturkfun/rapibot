@@ -1,4 +1,5 @@
 
+
 import os
 import praw
 
@@ -14,7 +15,7 @@ reddit = praw.Reddit(
 
 
 def getrandomsubm():
-
+  
 
   subreddit = reddit.subreddit("memes")
   submission = subreddit.random()
