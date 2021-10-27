@@ -1,5 +1,5 @@
 
-
+from random import randint
 import os
 import praw
 
@@ -13,16 +13,25 @@ reddit = praw.Reddit(
 )
 
 
-
 def getrandomsubm():
   
 
-  subreddit = reddit.subreddit("memes")
-  submission = subreddit.random()
+  subreddit0 = reddit.subreddit("memes")
+  subreddit1 = reddit.subreddit("DankMemes")
+  number = randint(0, 1)
+  if(number == 0):
+    submission = subreddit0.random()
+  else:
+    submission = subreddit1.random()
+  
+
+  
   if submission.over_18:
     return "Sorry this submission is inapporiate"
   else:
     return  submission
+
+print(getrandomsubm().title)
 
 def getearthporn():
   subreddit = reddit.subreddit("EarthPorn")
